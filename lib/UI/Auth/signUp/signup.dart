@@ -1,0 +1,208 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import '../../Colors/colors.dart';
+import '../../widgets/custom_textfield.dart';
+import '../login/login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
+  @override
+  SignupScreenState createState() => SignupScreenState();
+}
+
+class SignupScreenState extends State<SignupScreen> {
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+  bool isLoading = false;
+
+  Future<void> signUp() async {
+    if (formKey.currentState!.validate()) {
+      // Check if password and confirm password match
+      if (passwordController.text != confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Passwords do not match!')),
+        );
+        return; 
+      }
+
+      setState(() {
+        isLoading = true;
+      });
+
+      try {
+        // Create user with email and password
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+
+        // Get user ID
+        String userId = userCredential.user!.uid;
+
+        // Save user data to Firestore
+        await FirebaseFirestore.instance.collection('users').doc(userId).set({
+          'name': nameController.text.trim(),
+          'email': emailController.text.trim(),
+          'docId': userId, 
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Account created successfully!')),
+        );
+
+        // Navigate to the login screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      } on FirebaseAuthException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Error occurred')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Text(
+                  "Sign Up",
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+                ),
+              ),
+              const SizedBox(height: 50),
+              const Text(
+                "Name",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: nameController,
+                hintText: "Enter your name",
+                prefixIcon: Icons.person,
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Email",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: emailController,
+                hintText: "Enter your email",
+                prefixIcon: Icons.email,
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Password",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: passwordController,
+                hintText: "Enter your password",
+                prefixIcon: Icons.lock,
+                isPassword: true,
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Confirm Password",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: confirmPasswordController,
+                hintText: "Confirm your password",
+                prefixIcon: Icons.lock,
+                isPassword: true,
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              Center(
+                child: InkWell(
+                  onTap: isLoading ? null : signUp,
+                  child: Container(
+                    width: 288,
+                    height: 48,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: primaryColor),
+                    child: Center(
+                      child: isLoading
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Center(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: "Already have an account? ",
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: "Sign In",
+                          style: const TextStyle(
+                            color: primaryColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
