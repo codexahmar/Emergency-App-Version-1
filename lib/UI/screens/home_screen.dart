@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../services/serverkey.dart';
 import '../widgets/custom_drawer.dart';
 import 'contacts_screen.dart';
 import 'first_aid_screen.dart';
@@ -48,11 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen size
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    // Set dynamic font size and padding based on screen width
     final double fontSize = screenWidth < 400 ? 20 : 30;
     final double padding = screenWidth < 400 ? 8 : 16;
     final double gridSpacing = screenWidth < 400 ? 8 : 12;
@@ -165,6 +163,19 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
+          // ElevatedButton(
+          //   onPressed: () async {
+          //     try {
+          //       print("Clicked........");
+          //       final get = getServerKey();
+          //       String token = await get.serverToken();
+          //       print("This is the access token: $token");
+          //     } catch (e) {
+          //       print("Error occurred: $e");
+          //     }
+          //   },
+          //   child: Text('Get Server Token'),
+          // )
         ],
       ),
     );

@@ -1,0 +1,32 @@
+import 'package:googleapis_auth/auth_io.dart';
+
+class getServerKey {
+  Future<String> serverToken() async {
+    final scopes = [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/firebase.database",
+      "https://www.googleapis.com/auth/firebase.messaging"
+    ];
+    final client = await clientViaServiceAccount(
+        ServiceAccountCredentials.fromJson({
+          "type": "service_account",
+          "project_id": "emergencyapp-46566",
+          "private_key_id": "f02d70197bf5bea065630b6f544eaa41902809a5",
+          "private_key":
+              "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDsmqnvkai25mAb\nZBAsWNQ3THsGgxY66bTZtAdUH/drhg+TxByKc6dQ59xXFwtgxK2Nr/QyPgsIooWh\nmXKtFgSj724xv1nLfVekQ4mg3C5vTBRiKp9cUpEDk/nleykCvOsFNQ/SxhWYsCPW\no3KGIiH5q++IgiUVNYBEZmdz6dgu+KYejozMgsrHPQqQT2wP98uWPCm4ivke/ZAQ\nHzxk+/GDmaUS+NfsugESdpRFhK+GMCTmdwtiO0esm3+4YBTf+Sgo8/3OTv4WNIfF\njWJeXHayewi9350/i1zsbJR71k131q5ad2v0E0o/D1zODECtpC8bURf326fYkz8l\nZv3Ur2LhAgMBAAECggEAE3B3otPEWVafMdDsVUBtGygA+Z1+j5ORBMv6SCqiMObg\nU8MqlyN+bTLHky41BJvUKI560T/wtyJnOUo6tkbXVcK/un2euo3PTBMydRFyDTni\neNhIpJSyDmmzf+u5CF0OMCzWYnpc3uEl6KYgLC4UvYcnVH9g3Ze6NKR3PnpJhT5H\nMrTjgp6/WAU0SU9LRCGCbTx+l4rloMvYaCGuiBsUXjx3kBbyxSuo9t2eVCgii+Y2\nqDr5ivW0NGdhSOew490rMsnsFypAvHEa48P9hbTd+CUFJNTHU8pXAVt7EpaQBOLo\ncuhFL/ozsxfSsv66yyZP9IX83qWKJFcaFGAH462VWQKBgQD2sXrxrJeuAtXKPDlp\nS5i6hJQqQ2ftfUNLR7OErvpafaAi7nepu8tprFONP77kl1tq9xW9NCg8TvI26uYr\nji/K01olbpX05s/Gn8W85G3LruJdMlF1v/GJxA2Q2q5e0SFAHun+PYC26WDaZmDE\n/x7GAx6bvPakgTrJ0pdiF/LbZQKBgQD1h76caG8w46lAWgBZ2OWvNkTORYvGx25h\nBmntTZIf4xvqeZV27Xh2VLtZSL1qUnh2+OHyNZ9EadQWs50OWoIR0B2kf9icFiGt\nluR30ydU+5wIMQL8X3QJg8Zgva0GtflIli83Q390WIiCCIOgrTVpuGw7fiA9Lxyg\nza7QdBc3zQKBgQCBNZhleLbBZ66+jCit4/CM0OAh+sg2dcOHbHi0aEmsl9wGL8zx\nU/FI2f+xHdBIPpadQela/jSM0fS/mu0PpxuVKnou3OsiKLpvGEQjmamAY4sgsThF\nalGCjPNmCYQHGZZG1WpNxbzjEP2vpqvMwqtFn2CqxaCRrTYze1/a+xwymQKBgBUI\nUc24LH41olP+4bTQnaxKq843queWQeBR2lUXpgLRQ5zsWV9crEsGqx3U21T2R5d5\nbnF/ImuL3T0smbGXEzlPaJqk0Ptd8fiaymtxTRc8jnstJ6JS0u/Vt/KljOLcR8Ru\nCRFk2NAwnVD2RcBH1iF+SNc30K8tD/i+ZdE5gJupAoGBAL9qCWqiIP3UOfQDnvUk\nI2jlIiM0W6PGTqkgCdSc/0XDxtHzz4D7WUaKDlxOBJr6IfMtMb19QIFlI9wPNsTI\nFW9qtZhaTAtp982F4iBgJvxJfUsq8jVblc9XXdJBdX9M/Mzht0uy9XSP37a94ECl\nyk7zY57erUTN3sAkfJrE5g/w\n-----END PRIVATE KEY-----\n",
+          "client_email":
+              "firebase-adminsdk-fbsvc@emergencyapp-46566.iam.gserviceaccount.com",
+          "client_id": "112633024303785938783",
+          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+          "token_uri": "https://oauth2.googleapis.com/token",
+          "auth_provider_x509_cert_url":
+              "https://www.googleapis.com/oauth2/v1/certs",
+          "client_x509_cert_url":
+              "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40emergencyapp-46566.iam.gserviceaccount.com",
+          "universe_domain": "googleapis.com"
+        }),
+        scopes);
+    final accessServerKey = client.credentials.accessToken.data;
+    return accessServerKey;
+  }
+}

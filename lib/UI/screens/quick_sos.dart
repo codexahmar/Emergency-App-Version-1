@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../provider/location_provider.dart';
 import '../widgets/emergency_container.dart';
+import '../widgets/sos_btn.dart';
 
 class QuickSosAlert extends StatefulWidget {
   const QuickSosAlert({super.key});
@@ -71,36 +72,13 @@ class _QuickSosAlertState extends State<QuickSosAlert> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset(
-                    "assets/icons/sos_btn.png",
-                    height: 300,
-                  ),
-                  Column(
-                    children: const [
-                      Text(
-                        "SOS",
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "Press and hold for 3 seconds",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              child: SOSButton(
+                onPressed: () {
+                  print("SOS Activated!");
+                },
               ),
             ),
+            SizedBox(height: 30),
             Text(
               "Select Your Emergency Type",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),

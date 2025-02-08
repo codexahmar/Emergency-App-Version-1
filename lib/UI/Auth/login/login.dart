@@ -1,4 +1,5 @@
 import 'package:emergency_app/UI/Auth/signUp/signup.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

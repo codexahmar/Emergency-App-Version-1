@@ -1,4 +1,4 @@
-import 'package:emergency_app/UI/screens/userProfile/my_profile.dart';
+import 'package:emergency_app/UI/screens/my_profile.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

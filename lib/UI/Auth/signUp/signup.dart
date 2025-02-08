@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../../services/firebase_api.dart';
 import '../../Colors/colors.dart';
 import '../../widgets/custom_textfield.dart';
 import '../login/login.dart';
@@ -23,12 +24,11 @@ class SignupScreenState extends State<SignupScreen> {
 
   Future<void> signUp() async {
     if (formKey.currentState!.validate()) {
-      // Check if password and confirm password match
       if (passwordController.text != confirmPasswordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Passwords do not match!')),
         );
-        return; 
+        return;
       }
 
       setState(() {
@@ -45,12 +45,18 @@ class SignupScreenState extends State<SignupScreen> {
 
         // Get user ID
         String userId = userCredential.user!.uid;
+        // Create an instance of FirebaseApi
+        FirebaseApi firebaseApi = FirebaseApi();
+        // Get FCM token
+        String? fcmToken = await firebaseApi.firebaseMessaging
+            .getToken(); // Use the instance to get the token
 
         // Save user data to Firestore
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'name': nameController.text.trim(),
           'email': emailController.text.trim(),
-          'docId': userId, 
+          'docId': userId,
+          'fcmToken': fcmToken,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(

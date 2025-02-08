@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../services/notification_service.dart';
+
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
 
@@ -12,20 +14,24 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
-  final List<Map<String, String>> contacts = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String userId = FirebaseAuth.instance.currentUser!.uid;
-  // print("THis is current logged in user docID $userId");
 
-  void addContact(String name, String phoneNumber) {
-    setState(() {
-      contacts.add({'name': name, 'phone': phoneNumber});
-    });
+  void addContact(String name, String phoneNumber) async {
+    // Find the document ID of the user with the matching phone number
+    String? docId;
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('phone', isEqualTo: phoneNumber)
+        .get();
+    print("This is the querysnap ${querySnapshot.docs}");
+    if (querySnapshot.docs.isNotEmpty) {
+      docId = querySnapshot.docs.first.id;
+    }
 
-    // Update Firestore
-    _firestore.collection('users').doc(userId).update({
+    await _firestore.collection('users').doc(userId).update({
       'emergencyContacts': FieldValue.arrayUnion([
-        {'name': name, 'phone': phoneNumber}
+        {'name': name, 'phone': phoneNumber, 'docId': docId}
       ])
     });
   }
@@ -93,6 +99,42 @@ class _ContactsScreenState extends State<ContactsScreen> {
     }
   }
 
+  Future<void> deleteContact(Map<String, String> contact) async {
+    await _firestore.collection('users').doc(userId).update({
+      'emergencyContacts': FieldValue.arrayRemove([contact])
+    });
+  }
+
+  void sendEmergencyNotification(String docId) async {
+    try {
+      // Get current user's name
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      print("This is userDoc: ${userDoc.data()}");
+      final userName = userDoc.data()?['name'] ?? 'Emergency Contact';
+      print("This is docId: $docId and this is userId: $userId");
+
+      // Add debug call before sending notification
+      await NotificationService.debugNotificationFlow(
+        recipientDocId: docId,
+        senderName: userName,
+      );
+
+      await NotificationService.sendEmergencyNotificationToUser(
+        recipientDocId: docId,
+        senderName: userName,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Emergency alert sent successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send emergency alert')),
+      );
+      print('Error sending emergency notification: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,7 +172,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
           return ListView.builder(
             itemCount: emergencyContacts.length,
             itemBuilder: (context, index) {
-              final contact = emergencyContacts[index];
+              final contact = emergencyContacts[index]
+                  as Map<String, dynamic>; // Ensure correct casting
+              final String name = contact['name'] ?? '';
+              final String phone = contact['phone'] ?? '';
+
               return Card(
                 color: Colors.white,
                 margin: const EdgeInsets.all(12.0),
@@ -144,7 +190,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     vertical: 20.0,
                   ),
                   title: Text(
-                    contact['name'] ?? '',
+                    name,
                     style: const TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w600,
@@ -152,7 +198,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    contact['phone'] ?? '',
+                    phone,
                     style: const TextStyle(
                       fontSize: 16.0,
                       color: Colors.grey,
@@ -168,7 +214,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                           size: 30,
                         ),
                         onPressed: () {
-                          makeCall(contact['phone'] ?? '');
+                          makeCall(phone);
                         },
                       ),
                       IconButton(
@@ -178,7 +224,26 @@ class _ContactsScreenState extends State<ContactsScreen> {
                           size: 30,
                         ),
                         onPressed: () {
-                          // Implement message functionality (e.g., open messaging app)
+                          final String? docId = contact['docId'];
+                          if (docId != null) {
+                            sendEmergencyNotification(docId);
+                          } else {
+                            print('No user found with this phone number.');
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          _firestore.collection('users').doc(userId).update({
+                            'emergencyContacts': FieldValue.arrayRemove([
+                              {'name': name, 'phone': phone}
+                            ])
+                          });
                         },
                       ),
                     ],

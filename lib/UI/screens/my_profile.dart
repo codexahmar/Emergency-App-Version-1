@@ -8,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 
-import '../../widgets/custom_textfield.dart';
+import '../widgets/custom_textfield.dart';
 
 class MyprofileScreen extends StatefulWidget {
   const MyprofileScreen({super.key});
