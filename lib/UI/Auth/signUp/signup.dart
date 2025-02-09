@@ -5,6 +5,8 @@ import '../../Colors/colors.dart';
 import '../../widgets/custom_textfield.dart';
 import '../login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergency_app/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -86,8 +88,10 @@ class SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Form(
@@ -158,8 +162,11 @@ class SignupScreenState extends State<SignupScreen> {
                     width: 288,
                     height: 48,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: primaryColor),
+                      borderRadius: BorderRadius.circular(12),
+                      color: themeProvider.isDarkMode
+                          ? Colors.grey[800]
+                          : primaryColor,
+                    ),
                     child: Center(
                       child: isLoading
                           ? CircularProgressIndicator(color: Colors.white)
@@ -186,15 +193,17 @@ class SignupScreenState extends State<SignupScreen> {
                   child: RichText(
                     text: TextSpan(
                       text: "Already have an account? ",
-                      style: const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
                       ),
                       children: [
                         TextSpan(
                           text: "Sign In",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: primaryColor,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

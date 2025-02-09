@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'provider/location_provider.dart';
 import 'services/notification_service.dart';
+import 'provider/theme_provider.dart';
 
 Future<void> setupNotifications() async {
   await NotificationService.initialize();
@@ -24,6 +25,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => LocationProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -35,8 +37,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: themeProvider.isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: const SplashScreen(),
     );
   }

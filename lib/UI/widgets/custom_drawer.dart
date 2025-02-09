@@ -1,4 +1,6 @@
 import 'package:emergency_app/UI/screens/my_profile.dart';
+import 'package:emergency_app/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,14 +21,20 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final backgroundColor =
+        themeProvider.isDarkMode ? Colors.black : primaryColor;
+    final textColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
+
     return Drawer(
+      backgroundColor: Colors.white,
       width: MediaQuery.of(context).size.width * 0.85,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            decoration: const BoxDecoration(
-              color: primaryColor,
+            decoration: BoxDecoration(
+              color: backgroundColor,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -42,8 +50,8 @@ class MyDrawer extends StatelessWidget {
                   children: [
                     Text(
                       "Welcome, $userName!",
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: textColor,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -74,7 +82,9 @@ class MyDrawer extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8DECF),
+                  color: themeProvider.isDarkMode
+                      ? Colors.black
+                      : Color(0xFFE8DECF),
                   shape: BoxShape.circle,
                 ),
                 child: Padding(
@@ -96,7 +106,9 @@ class MyDrawer extends StatelessWidget {
           //     width: 40,
           //     height: 40,
           //     decoration: BoxDecoration(
-          //       color: const Color(0xFFE8DECF),
+          //       color: themeProvider.isDarkMode
+          // ? Colors.black
+          // : Color(0xFFE8DECF),
           //       shape: BoxShape.circle,
           //     ),
           //     child: Icon(
@@ -127,7 +139,8 @@ class MyDrawer extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFFE8DECF),
+                color:
+                    themeProvider.isDarkMode ? Colors.black : Color(0xFFE8DECF),
                 shape: BoxShape.circle,
               ),
               child: Padding(
@@ -155,6 +168,21 @@ class MyDrawer extends StatelessWidget {
             },
           ),
           const Divider(),
+          ListTile(
+            leading: Icon(Icons.brightness_6,
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black),
+            title: Text('Toggle Dark Mode',
+                style: TextStyle(
+                    color: themeProvider.isDarkMode
+                        ? Colors.white
+                        : Colors.black)),
+            trailing: Switch(
+              value: themeProvider.isDarkMode,
+              onChanged: (value) {
+                themeProvider.toggleTheme();
+              },
+            ),
+          ),
         ],
       ),
     );

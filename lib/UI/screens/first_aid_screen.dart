@@ -1,5 +1,7 @@
 import 'package:emergency_app/UI/Colors/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../provider/theme_provider.dart';
 import '../widgets/guidelines.dart';
 
 class FirstAidScreen extends StatefulWidget {
@@ -12,9 +14,10 @@ class FirstAidScreen extends StatefulWidget {
 class _FirstAidScreenState extends State<FirstAidScreen> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: primaryColor,
+        backgroundColor: themeProvider.isDarkMode ? Colors.black : primaryColor,
         title: const Text(
           'First Aid Guidelines',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),

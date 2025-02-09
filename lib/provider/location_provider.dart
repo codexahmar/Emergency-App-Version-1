@@ -43,11 +43,18 @@ class LocationProvider extends ChangeNotifier {
       return;
     }
 
-    // Start listening to location changes
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy:
+          LocationAccuracy.bestForNavigation, 
+    );
+    updateLocation(position);
+
+  
     positionStreamSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 1, 
       ),
     ).listen((Position position) {
       updateLocation(position);
@@ -56,6 +63,9 @@ class LocationProvider extends ChangeNotifier {
 
   Future<void> updateLocation(Position position) async {
     try {
+      print(
+          "Current Latitude: ${position.latitude}, Longitude: ${position.longitude}");
+
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -66,6 +76,7 @@ class LocationProvider extends ChangeNotifier {
 
         currentLocation =
             " ${place.locality}, ${place.administrativeArea}, ${place.country}";
+        print(currentLocation);
       } else {
         currentLocation = 'Location not found';
       }

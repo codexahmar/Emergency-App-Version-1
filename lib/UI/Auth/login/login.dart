@@ -2,7 +2,9 @@ import 'package:emergency_app/UI/Auth/signUp/signup.dart';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
+import '../../../provider/theme_provider.dart';
 import '../../Colors/colors.dart';
 import '../../screens/home_screen.dart';
 import '../../widgets/custom_textfield.dart';
@@ -63,8 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -114,7 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 48,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: primaryColor),
+                          color: themeProvider.isDarkMode
+                              ? Colors.grey[800]
+                              : primaryColor),
                       child: Center(
                           child: Text(
                         "Login",
@@ -144,8 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: RichText(
                   text: TextSpan(
                     text: "Register your account  ",
-                    style: const TextStyle(
-                      color: Colors.black,
+                    style: TextStyle(
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
                       fontSize: 14,
                       fontWeight: FontWeight.normal,
                     ),

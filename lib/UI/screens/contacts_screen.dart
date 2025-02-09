@@ -1,9 +1,11 @@
 import 'package:emergency_app/UI/Colors/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../provider/theme_provider.dart';
 import '../../services/notification_service.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -43,19 +45,30 @@ class _ContactsScreenState extends State<ContactsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final themeProvider = Provider.of<ThemeProvider>(context);
+        final dialogBackgroundColor =
+            themeProvider.isDarkMode ? Colors.grey[850] : Colors.white;
+        final dialogTextColor =
+            themeProvider.isDarkMode ? Colors.white : Colors.black;
+
         return AlertDialog(
-          title: const Text('Add Contact'),
+          backgroundColor: dialogBackgroundColor,
+          title: Text('Add Contact', style: TextStyle(color: dialogTextColor)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(color: dialogTextColor)),
                 onChanged: (value) {
                   name = value;
                 },
               ),
               TextField(
-                decoration: const InputDecoration(labelText: 'Phone Number'),
+                decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    labelStyle: TextStyle(color: dialogTextColor)),
                 keyboardType: TextInputType.phone,
                 onChanged: (value) {
                   phoneNumber = value;
@@ -68,9 +81,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: dialogTextColor),
               ),
             ),
             TextButton(
@@ -78,9 +91,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 addContact(name, phoneNumber);
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'Save',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: dialogTextColor),
               ),
             ),
           ],
@@ -137,13 +150,22 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final backgroundColor =
+        themeProvider.isDarkMode ? Colors.black : Colors.white;
+    final appBarColor =
+        themeProvider.isDarkMode ? Colors.grey[850] : primaryColor;
+    final textColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
+    final subtitleColor =
+        themeProvider.isDarkMode ? Colors.white70 : Colors.grey;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: primaryColor,
-        title: const Text(
+        backgroundColor: appBarColor,
+        title: Text(
           'Add Emergency Contacts',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: textColor),
         ),
         centerTitle: true,
         elevation: 10.0,
@@ -178,7 +200,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
               final String phone = contact['phone'] ?? '';
 
               return Card(
-                color: Colors.white,
+                color:
+                    themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
                 margin: const EdgeInsets.all(12.0),
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -191,17 +214,19 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   ),
                   title: Text(
                     name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.w600,
-                      color: primaryColor,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : primaryColor,
                     ),
                   ),
                   subtitle: Text(
                     phone,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16.0,
-                      color: Colors.grey,
+                      color: subtitleColor,
                     ),
                   ),
                   trailing: Row(

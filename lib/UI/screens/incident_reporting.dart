@@ -2,6 +2,9 @@ import 'package:emergency_app/UI/Colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
+
+import '../../provider/theme_provider.dart';
 
 class IncidentReportingScreen extends StatefulWidget {
   const IncidentReportingScreen({super.key});
@@ -49,15 +52,16 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: themeProvider.isDarkMode ? Colors.black : primaryColor,
         title: const Text(
           'Incident Reporting',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
@@ -67,16 +71,24 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: themeProvider.isDarkMode
+                    ? Colors.grey[850]
+                    : Colors.grey[100],
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey[300]!),
+                border: Border.all(
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[700]!
+                        : Colors.grey[300]!),
               ),
               child: TextField(
                 controller: descriptionController,
                 maxLines: 5,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Describe the incident',
-                  labelStyle: TextStyle(color: Colors.black54),
+                  labelStyle: TextStyle(
+                      color: themeProvider.isDarkMode
+                          ? Colors.white54
+                          : Colors.black54),
                   border: InputBorder.none,
                 ),
               ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
+import '../../provider/theme_provider.dart';
 import '../../services/serverkey.dart';
 import '../widgets/custom_drawer.dart';
 import 'contacts_screen.dart';
@@ -49,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
 
     final double fontSize = screenWidth < 400 ? 20 : 30;
@@ -56,15 +59,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final double gridSpacing = screenWidth < 400 ? 8 : 12;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
         centerTitle: true,
         title: const Text(
           "Safety First",
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(
+          color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+        ),
       ),
       drawer: fetchUserName(),
       body: Column(
