@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:emergency_app/UI/Colors/colors.dart';
+import 'package:emergency_app/UI/screens/home_screen.dart';
 import 'package:emergency_app/provider/theme_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -207,7 +208,13 @@ class _MyprofileScreenState extends State<MyprofileScreen> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: updateUserData,
+                      onPressed: () async {
+                        await updateUserData();
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()));
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         shape: RoundedRectangleBorder(

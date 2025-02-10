@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/theme_provider.dart';
-import '../../services/serverkey.dart';
+
 import '../widgets/custom_drawer.dart';
 import 'contacts_screen.dart';
 import 'first_aid_screen.dart';
@@ -29,9 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
           .doc(userId)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
         if (snapshot.hasError) {
           return const Text("Error loading user data");
         }
@@ -64,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
         centerTitle: true,
         title: const Text(
-          "Safety First",
+          "One tap emergency alert",
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         iconTheme: IconThemeData(
@@ -80,17 +77,17 @@ class _HomeScreenState extends State<HomeScreen> {
             fit: BoxFit.cover,
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: EdgeInsets.all(padding),
-            child: Text(
-              "Instantly alert your emergency contacts with one tap",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: fontSize,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.all(padding),
+          //   child: Text(
+          //     "Instantly alert your emergency contacts with one tap",
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.w600,
+          //       fontSize: fontSize,
+          //     ),
+          //     textAlign: TextAlign.center,
+          //   ),
+          // ),
           const SizedBox(height: 20),
           Expanded(
             child: GridView.builder(
@@ -168,19 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     try {
-          //       print("Clicked........");
-          //       final get = getServerKey();
-          //       String token = await get.serverToken();
-          //       print("This is the access token: $token");
-          //     } catch (e) {
-          //       print("Error occurred: $e");
-          //     }
-          //   },
-          //   child: Text('Get Server Token'),
-          // )
         ],
       ),
     );

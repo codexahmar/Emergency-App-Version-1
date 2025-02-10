@@ -21,13 +21,11 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 3), () async {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // User is logged in, navigate to HomeScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
-        // User is not logged in, navigate to SignupScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const SignupScreen()),

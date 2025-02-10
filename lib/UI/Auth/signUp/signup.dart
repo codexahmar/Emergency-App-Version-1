@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../services/firebase_api.dart';
 import '../../Colors/colors.dart';
 import '../../widgets/custom_textfield.dart';
@@ -18,6 +19,7 @@ class SignupScreen extends StatefulWidget {
 class SignupScreenState extends State<SignupScreen> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -38,34 +40,31 @@ class SignupScreenState extends State<SignupScreen> {
       });
 
       try {
-        // Create user with email and password
         UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
 
-        // Get user ID
         String userId = userCredential.user!.uid;
-        // Create an instance of FirebaseApi
-        FirebaseApi firebaseApi = FirebaseApi();
-        // Get FCM token
-        String? fcmToken = await firebaseApi.firebaseMessaging
-            .getToken(); // Use the instance to get the token
 
-        // Save user data to Firestore
+        FirebaseApi firebaseApi = FirebaseApi();
+
+        String? fcmToken = await firebaseApi.firebaseMessaging.getToken();
+
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'name': nameController.text.trim(),
           'email': emailController.text.trim(),
+          'phone': phoneController.text.trim(),
           'docId': userId,
           'fcmToken': fcmToken,
+          'createdAt': FieldValue.serverTimestamp(),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Account created successfully!')),
         );
 
-        // Navigate to the login screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -116,6 +115,29 @@ class SignupScreenState extends State<SignupScreen> {
                 controller: nameController,
                 hintText: "Enter your name",
                 prefixIcon: Icons.person,
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Phone Number",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: phoneController,
+                hintText: 'Enter your phone number',
+                prefixIcon: Icons.phone,
+                isPassword: false,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                onChanged: (value) {
+                  if (value.isNotEmpty && !RegExp(r'^\d+$').hasMatch(value)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Only numeric input is allowed')),
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 30),
               const Text(

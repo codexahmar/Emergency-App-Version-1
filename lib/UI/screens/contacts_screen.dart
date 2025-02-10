@@ -20,7 +20,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   final String userId = FirebaseAuth.instance.currentUser!.uid;
 
   void addContact(String name, String phoneNumber) async {
-    // Find the document ID of the user with the matching phone number
     String? docId;
     final querySnapshot = await _firestore
         .collection('users')
@@ -120,13 +119,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
   void sendEmergencyNotification(String docId) async {
     try {
-      // Get current user's name
       final userDoc = await _firestore.collection('users').doc(userId).get();
       print("This is userDoc: ${userDoc.data()}");
       final userName = userDoc.data()?['name'] ?? 'Emergency Contact';
       print("This is docId: $docId and this is userId: $userId");
 
-      // Add debug call before sending notification
       await NotificationService.debugNotificationFlow(
         recipientDocId: docId,
         senderName: userName,
@@ -194,8 +191,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           return ListView.builder(
             itemCount: emergencyContacts.length,
             itemBuilder: (context, index) {
-              final contact = emergencyContacts[index]
-                  as Map<String, dynamic>; // Ensure correct casting
+              final contact = emergencyContacts[index] as Map<String, dynamic>;
               final String name = contact['name'] ?? '';
               final String phone = contact['phone'] ?? '';
 
@@ -281,7 +277,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: showAddContactDialog,
-        backgroundColor: primaryColor,
+        backgroundColor: themeProvider.isDarkMode ? Colors.grey : primaryColor,
         child: const Icon(
           Icons.contact_emergency_rounded,
           color: Colors.white,

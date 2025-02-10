@@ -22,12 +22,13 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    themeProvider.loadThemePreference();
     final backgroundColor =
         themeProvider.isDarkMode ? Colors.black : primaryColor;
-    final textColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
+    final textColor = themeProvider.isDarkMode ? Colors.white : Colors.white;
 
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       width: MediaQuery.of(context).size.width * 0.85,
       child: ListView(
         padding: EdgeInsets.zero,
@@ -78,22 +79,9 @@ class MyDrawer extends StatelessWidget {
               );
             },
             child: ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: themeProvider.isDarkMode
-                      ? Colors.black
-                      : Color(0xFFE8DECF),
-                  shape: BoxShape.circle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    "assets/icons/heart.png",
-                    height: 25,
-                  ),
-                ),
+              leading: Image.asset(
+                "assets/icons/heart.png",
+                height: 25,
               ),
               title: const Text('My Profile'),
               trailing: const Icon(Icons.arrow_forward_ios,
@@ -135,21 +123,9 @@ class MyDrawer extends StatelessWidget {
           // ),
           const Divider(),
           ListTile(
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color:
-                    themeProvider.isDarkMode ? Colors.black : Color(0xFFE8DECF),
-                shape: BoxShape.circle,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  "assets/icons/logout.png",
-                  height: 25,
-                ),
-              ),
+            leading: Image.asset(
+              "assets/icons/logout.png",
+              height: 25,
             ),
             title: const Text('Logout'),
             trailing: const Icon(Icons.arrow_forward_ios,
@@ -170,13 +146,14 @@ class MyDrawer extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: Icon(Icons.brightness_6,
-                color: themeProvider.isDarkMode ? Colors.white : Colors.black),
+                color: themeProvider.isDarkMode ? primaryColor : primaryColor),
             title: Text('Toggle Dark Mode',
                 style: TextStyle(
                     color: themeProvider.isDarkMode
                         ? Colors.white
                         : Colors.black)),
             trailing: Switch(
+              activeColor: Colors.white,
               value: themeProvider.isDarkMode,
               onChanged: (value) {
                 themeProvider.toggleTheme();

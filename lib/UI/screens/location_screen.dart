@@ -12,7 +12,7 @@ class LocationScreen extends StatefulWidget {
 
 class _LocationScreenState extends State<LocationScreen> {
   final MapController mapController = MapController();
-  LatLng currentLocation = LatLng(0, 0); // Default value
+  LatLng currentLocation = LatLng(0, 0);
   bool isLoading = true;
 
   @override
@@ -25,14 +25,12 @@ class _LocationScreenState extends State<LocationScreen> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       showMessage('Location services are disabled.');
       return;
     }
 
-    // Check location permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -49,14 +47,12 @@ class _LocationScreenState extends State<LocationScreen> {
     }
 
     try {
-      // Get the current position
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
 
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
-        mapController.move(
-            currentLocation, 15.0); // Move map to current location
+        mapController.move(currentLocation, 15.0);
         isLoading = false;
       });
     } catch (e) {

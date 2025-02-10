@@ -22,8 +22,8 @@ class _SOSButtonState extends State<SOSButton> {
       },
       child: AnimatedContainer(
         duration: Duration(milliseconds: 100),
-        width: 180,
-        height: 200,
+        width: MediaQuery.of(context).size.width * 0.5,
+        height: MediaQuery.of(context).size.height * 0.25,
         decoration: BoxDecoration(
           color: Colors.redAccent,
           shape: BoxShape.circle,

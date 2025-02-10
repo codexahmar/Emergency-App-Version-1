@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/theme_provider.dart';
 
 class GuidelinesWidget extends StatelessWidget {
   final String title;
@@ -16,10 +19,11 @@ class GuidelinesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: themeProvider.isDarkMode ? Colors.black : Colors.grey[200],
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.grey[400]!),
       ),
@@ -34,18 +38,20 @@ class GuidelinesWidget extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color:
+                        themeProvider.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
               ],
