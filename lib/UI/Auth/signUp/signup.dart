@@ -48,16 +48,16 @@ class SignupScreenState extends State<SignupScreen> {
 
         String userId = userCredential.user!.uid;
 
-        FirebaseApi firebaseApi = FirebaseApi();
+        // FirebaseApi firebaseApi = FirebaseApi();
 
-        String? fcmToken = await firebaseApi.firebaseMessaging.getToken();
+        // String? fcmToken = await firebaseApi.firebaseMessaging.getToken();
 
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'name': nameController.text.trim(),
           'email': emailController.text.trim(),
           'phone': phoneController.text.trim(),
           'docId': userId,
-          'fcmToken': fcmToken,
+          // 'fcmToken': fcmToken,
           'createdAt': FieldValue.serverTimestamp(),
         });
 

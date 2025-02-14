@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergency_app/UI/Auth/signUp/signup.dart';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../../provider/theme_provider.dart';
+import '../../../services/firebase_api.dart';
 import '../../Colors/colors.dart';
 import '../../screens/home_screen.dart';
 import '../../widgets/custom_textfield.dart';
@@ -34,12 +36,19 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // ignore: unused_local_variable
+      FirebaseApi firebaseApi = FirebaseApi();
+
+      String? fcmToken = await firebaseApi.firebaseMessaging.getToken();
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
+      String userId = userCredential.user!.uid;
+      // Set the fcmToken in the Firestore database
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'fcmToken': fcmToken,
+      });
 
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => HomeScreen()));
