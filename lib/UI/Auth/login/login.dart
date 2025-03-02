@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergency_app/UI/Auth/signUp/signup.dart';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-
 import '../../../provider/theme_provider.dart';
 import '../../../services/firebase_api.dart';
 import '../../Colors/colors.dart';
@@ -45,7 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
         password: passwordController.text,
       );
       String userId = userCredential.user!.uid;
-      // Set the fcmToken in the Firestore database
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'fcmToken': fcmToken,
       });
@@ -87,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Center(
               child: Text(
-                "Sign In",
+                "Welcome Back",
                 style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
               ),
             ),
@@ -115,37 +112,32 @@ class _LoginScreenState extends State<LoginScreen> {
               isPassword: true,
             ),
             SizedBox(
-              height: 40,
+              height: 50,
             ),
             Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  InkWell(
-                    onTap: isLoading ? null : login,
-                    child: Container(
-                      width: 288,
-                      height: 48,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: themeProvider.isDarkMode
-                              ? Colors.grey[800]
-                              : primaryColor),
-                      child: Center(
-                          child: Text(
-                        "Login",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white),
-                      )),
-                    ),
+              child: InkWell(
+                onTap: isLoading ? null : login,
+                child: Container(
+                  width: 288,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[800]
+                        : primaryColor,
                   ),
-                  if (isLoading)
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                ],
+                  child: Center(
+                    child: isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            "Login",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                  ),
+                ),
               ),
             ),
             SizedBox(
@@ -154,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Center(
               child: InkWell(
                 onTap: () {
-                  Navigator.push(context,
+                  Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => SignupScreen()));
                 },
                 child: RichText(

@@ -11,6 +11,8 @@ import 'provider/location_provider.dart';
 import 'services/notification_service.dart';
 import 'provider/theme_provider.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> setupNotifications() async {
   await NotificationService.initialize();
 }
@@ -42,6 +44,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: themeProvider.isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: const SplashScreen(),
+      navigatorKey: navigatorKey,
     );
   }
 }

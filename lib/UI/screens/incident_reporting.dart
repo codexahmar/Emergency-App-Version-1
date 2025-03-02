@@ -55,6 +55,7 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: themeProvider.isDarkMode ? Colors.black : primaryColor,
         title: const Text(

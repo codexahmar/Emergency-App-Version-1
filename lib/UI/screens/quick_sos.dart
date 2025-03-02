@@ -18,17 +18,41 @@ class QuickSosAlertState extends State<QuickSosAlert> {
   String? selectedEmergency;
   Timer? holdTimer;
 
+  @override
+  void dispose() {
+    holdTimer?.cancel();
+    super.dispose();
+  }
+
   void startHoldTimer(BuildContext context) {
+    if (selectedEmergency == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an emergency type first'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     holdTimer = Timer(const Duration(seconds: 3), () {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ContactsScreen()),
+        MaterialPageRoute(
+          builder: (context) => ContactsScreen(
+            fromSOS: true,
+            emergencyType: selectedEmergency!,
+          ),
+        ),
       );
     });
   }
 
   void cancelHoldTimer() {
     holdTimer?.cancel();
+    setState(() {
+      selectedEmergency = null;
+    });
   }
 
   @override
@@ -106,7 +130,27 @@ class QuickSosAlertState extends State<QuickSosAlert> {
                 onLongPress: () => startHoldTimer(context),
                 onLongPressUp: cancelHoldTimer,
                 child: SOSButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (selectedEmergency == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Please select an emergency type first'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ContactsScreen(
+                          fromSOS: true,
+                          emergencyType: selectedEmergency!,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

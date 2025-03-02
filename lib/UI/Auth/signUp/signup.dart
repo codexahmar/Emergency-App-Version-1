@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../services/firebase_api.dart';
 import '../../Colors/colors.dart';
 import '../../widgets/custom_textfield.dart';
 import '../login/login.dart';
@@ -48,16 +47,11 @@ class SignupScreenState extends State<SignupScreen> {
 
         String userId = userCredential.user!.uid;
 
-        // FirebaseApi firebaseApi = FirebaseApi();
-
-        // String? fcmToken = await firebaseApi.firebaseMessaging.getToken();
-
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'name': nameController.text.trim(),
           'email': emailController.text.trim(),
           'phone': phoneController.text.trim(),
           'docId': userId,
-          // 'fcmToken': fcmToken,
           'createdAt': FieldValue.serverTimestamp(),
         });
 
@@ -105,7 +99,7 @@ class SignupScreenState extends State<SignupScreen> {
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 10),
               const Text(
                 "Name",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -116,7 +110,7 @@ class SignupScreenState extends State<SignupScreen> {
                 hintText: "Enter your name",
                 prefixIcon: Icons.person,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               const Text(
                 "Phone Number",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -139,7 +133,7 @@ class SignupScreenState extends State<SignupScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               const Text(
                 "Email",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -150,7 +144,7 @@ class SignupScreenState extends State<SignupScreen> {
                 hintText: "Enter your email",
                 prefixIcon: Icons.email,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               const Text(
                 "Password",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -162,7 +156,7 @@ class SignupScreenState extends State<SignupScreen> {
                 prefixIcon: Icons.lock,
                 isPassword: true,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               const Text(
                 "Confirm Password",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -175,7 +169,7 @@ class SignupScreenState extends State<SignupScreen> {
                 isPassword: true,
               ),
               SizedBox(
-                height: 40,
+                height: 45,
               ),
               Center(
                 child: InkWell(
@@ -209,7 +203,7 @@ class SignupScreenState extends State<SignupScreen> {
               Center(
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(context,
+                    Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => LoginScreen()));
                   },
                   child: RichText(

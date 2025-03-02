@@ -1,11 +1,8 @@
 import 'package:emergency_app/UI/screens/my_profile.dart';
 import 'package:emergency_app/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../Auth/signUp/signup.dart';
 import '../Colors/colors.dart';
 
@@ -84,43 +81,12 @@ class MyDrawer extends StatelessWidget {
                 height: 25,
               ),
               title: const Text('My Profile'),
-              trailing: const Icon(Icons.arrow_forward_ios,
-                  size: 16, color: Colors.black),
+              trailing: Icon(Icons.arrow_forward_ios,
+                  size: 16,
+                  color:
+                      themeProvider.isDarkMode ? primaryColor : Colors.black),
             ),
           ),
-          // const Divider(),
-          // ListTile(
-          //   leading: Container(
-          //     width: 40,
-          //     height: 40,
-          //     decoration: BoxDecoration(
-          //       color: themeProvider.isDarkMode
-          // ? Colors.black
-          // : Color(0xFFE8DECF),
-          //       shape: BoxShape.circle,
-          //     ),
-          //     child: Icon(
-          //       Icons.delete,
-          //       color: primaryColor,
-          //     ),
-          //   ),
-          //   title: const Text('Delete Account'),
-          //   trailing: const Icon(Icons.arrow_forward_ios,
-          //       size: 16, color: Colors.black),
-          //   onTap: () {
-          //     showCustomDialog(
-          //       context,
-          //       title: 'Delete Account',
-          //       content:
-          //           'Are you sure you want to delete your account? This action cannot be undone.',
-          //       icon: Icons.delete_forever,
-          //       confirmButtonText: 'Delete',
-          //       confirmAction: () async {
-          //         await deleteAccount(context);
-          //       },
-          //     );
-          //   },
-          // ),
           const Divider(),
           ListTile(
             leading: Image.asset(
@@ -128,8 +94,9 @@ class MyDrawer extends StatelessWidget {
               height: 25,
             ),
             title: const Text('Logout'),
-            trailing: const Icon(Icons.arrow_forward_ios,
-                size: 16, color: Colors.black),
+            trailing: Icon(Icons.arrow_forward_ios,
+                size: 16,
+                color: themeProvider.isDarkMode ? primaryColor : Colors.black),
             onTap: () {
               showCustomDialog(
                 context,
@@ -173,6 +140,9 @@ class MyDrawer extends StatelessWidget {
     required String confirmButtonText,
     required VoidCallback confirmAction,
   }) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode = themeProvider.isDarkMode;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -193,8 +163,12 @@ class MyDrawer extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child:
-                  const Text('Cancel', style: TextStyle(color: Colors.black)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: confirmAction,
@@ -203,7 +177,7 @@ class MyDrawer extends StatelessWidget {
               ),
               child: Text(
                 confirmButtonText,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ],
@@ -227,27 +201,4 @@ class MyDrawer extends StatelessWidget {
       );
     }
   }
-
-  // Future<void> deleteAccount(BuildContext context) async {
-  //   try {
-  //     User? user = FirebaseAuth.instance.currentUser; // Get the current user
-  //     if (user != null) {
-  //       await FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(user.uid)
-  //           .delete();
-  //       await user.delete();
-  //     }
-  //     Navigator.of(context, rootNavigator: true).pop();
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => SignupScreen()),
-  //     );
-  //   } catch (e) {
-  //     print("Error deleting account: $e");
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error deleting account. Please try again.')),
-  //     );
-  //   }
-  // }
 }

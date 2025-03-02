@@ -4,7 +4,14 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationScreen extends StatefulWidget {
-  const LocationScreen({super.key});
+  final double? initialLatitude;
+  final double? initialLongitude;
+
+  const LocationScreen({
+    super.key,
+    this.initialLatitude,
+    this.initialLongitude,
+  });
 
   @override
   State<LocationScreen> createState() => _LocationScreenState();
@@ -12,13 +19,20 @@ class LocationScreen extends StatefulWidget {
 
 class _LocationScreenState extends State<LocationScreen> {
   final MapController mapController = MapController();
-  LatLng currentLocation = LatLng(0, 0);
+  late LatLng currentLocation;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    getCurrentLocation();
+    if (widget.initialLatitude != null && widget.initialLongitude != null) {
+      currentLocation =
+          LatLng(widget.initialLatitude!, widget.initialLongitude!);
+      isLoading = false;
+    } else {
+      currentLocation = LatLng(0, 0);
+      getCurrentLocation();
+    }
   }
 
   Future<void> getCurrentLocation() async {

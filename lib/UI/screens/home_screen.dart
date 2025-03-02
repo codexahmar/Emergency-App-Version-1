@@ -51,7 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final double fontSize = screenWidth < 400 ? 20 : 30;
     final double padding = screenWidth < 400 ? 8 : 16;
     final double gridSpacing = screenWidth < 400 ? 8 : 12;
 
@@ -76,18 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
             width: screenWidth,
             fit: BoxFit.cover,
           ),
-          const SizedBox(height: 20),
-          // Padding(
-          //   padding: EdgeInsets.all(padding),
-          //   child: Text(
-          //     "Instantly alert your emergency contacts with one tap",
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.w600,
-          //       fontSize: fontSize,
-          //     ),
-          //     textAlign: TextAlign.center,
-          //   ),
-          // ),
           const SizedBox(height: 20),
           Expanded(
             child: GridView.builder(

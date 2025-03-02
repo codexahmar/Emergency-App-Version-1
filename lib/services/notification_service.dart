@@ -4,7 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
+import 'package:flutter/material.dart';
 
+import '../UI/screens/location_screen.dart';
+import '../main.dart';
 import 'serverkey.dart';
 
 class NotificationService {
@@ -25,7 +28,6 @@ class NotificationService {
   );
 
   static Future<void> initialize() async {
-    // Initialize local notifications
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings();
@@ -35,11 +37,45 @@ class NotificationService {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        print("Notification clicked: ${response.payload}");
+        handleNotificationTap(jsonDecode(response.payload ?? '{}'));
       },
     );
 
-    // Create notification channel for Android
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      handleNotificationTap(message.data);
+    });
+
+
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      handleNotificationTap(initialMessage.data);
+    }
+
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+
+      if (notification != null && android != null) {
+        _localNotifications.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              _channel.id,
+              _channel.name,
+              channelDescription: _channel.description,
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+          payload: jsonEncode(message.data),
+        );
+      }
+    });
+
     if (Platform.isAndroid) {
       await _localNotifications
           .resolvePlatformSpecificImplementation<
@@ -47,8 +83,25 @@ class NotificationService {
           ?.createNotificationChannel(_channel);
     }
 
-    // Request notification permissions
     await requestNotificationPermission();
+  }
+
+  static void handleNotificationTap(Map<String, dynamic> data) {
+    if (data['type'] == 'emergency') {
+      double? latitude = double.tryParse(data['latitude'] ?? '');
+      double? longitude = double.tryParse(data['longitude'] ?? '');
+
+      if (latitude != null && longitude != null) {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => LocationScreen(
+              initialLatitude: latitude,
+              initialLongitude: longitude,
+            ),
+          ),
+        );
+      }
+    }
   }
 
   static Future<void> requestNotificationPermission() async {
@@ -75,6 +128,9 @@ class NotificationService {
   static Future<bool> sendEmergencyNotification({
     required String recipientToken,
     required String senderName,
+    required String emergencyType,
+    required double latitude,
+    required double longitude,
   }) async {
     try {
       final serverKey = getServerKey();
@@ -99,7 +155,7 @@ class NotificationService {
           'message': {
             'token': recipientToken,
             'notification': {
-              'title': 'Emergency Alert!',
+              'title': '$emergencyType Emergency Alert!',
               'body': '$senderName needs your help!'
             },
             'android': {
@@ -119,6 +175,9 @@ class NotificationService {
               'click_action': 'FLUTTER_NOTIFICATION_CLICK',
               'type': 'emergency',
               'sender_name': senderName,
+              'emergency_type': emergencyType,
+              'latitude': latitude.toString(),
+              'longitude': longitude.toString(),
               'timestamp': DateTime.now().toIso8601String(),
             }
           }
@@ -144,6 +203,9 @@ class NotificationService {
   static Future<bool> sendEmergencyNotificationToUser({
     required String recipientDocId,
     required String senderName,
+    required String emergencyType,
+    required double latitude,
+    required double longitude,
   }) async {
     try {
       final recipientDoc = await FirebaseFirestore.instance
@@ -167,6 +229,9 @@ class NotificationService {
       return await sendEmergencyNotification(
         recipientToken: fcmToken,
         senderName: senderName,
+        emergencyType: emergencyType,
+        latitude: latitude,
+        longitude: longitude,
       );
     } catch (e, stackTrace) {
       print('Error in sendEmergencyNotificationToUser: $e');
@@ -180,40 +245,42 @@ class NotificationService {
     return token ?? "";
   }
 
-  // Add this to your NotificationService class
+
 
   static Future<void> debugNotificationFlow({
     required String recipientDocId,
     required String senderName,
   }) async {
     try {
-      print('🔍 Starting notification debug...');
+      print(' Starting notification debug...');
 
-      // Step 1: Check if recipient exists
       final recipientDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(recipientDocId)
           .get();
 
-      print('📑 Recipient document exists: ${recipientDoc.exists}');
+      print(' Recipient document exists: ${recipientDoc.exists}');
       if (recipientDoc.exists) {
         final recipientData = recipientDoc.data() as Map<String, dynamic>;
-        print('🔑 FCM Token found: ${recipientData['fcmToken'] != null}');
+        print(' FCM Token found: ${recipientData['fcmToken'] != null}');
         if (recipientData['fcmToken'] != null) {
-          print('📱 FCM Token: ${recipientData['fcmToken']}');
+          print(' FCM Token: ${recipientData['fcmToken']}');
         }
       }
 
-      // Step 2: Attempt to send notification
+
       final result = await sendEmergencyNotificationToUser(
         recipientDocId: recipientDocId,
         senderName: senderName,
+        emergencyType: 'Emergency',
+        latitude: 0.0,
+        longitude: 0.0,
       );
 
-      print('📤 Notification send attempt result: $result');
+      print(' Notification send attempt result: $result');
     } catch (e, stackTrace) {
-      print('❌ Debug Error: $e');
-      print('📖 Stack trace: $stackTrace');
+      print(' Debug Error: $e');
+      print(' Stack trace: $stackTrace');
     }
   }
 }
