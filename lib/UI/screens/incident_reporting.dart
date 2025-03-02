@@ -1,10 +1,13 @@
-import 'package:emergency_app/UI/Colors/colors.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:provider/provider.dart';
-
+import 'package:geolocator/geolocator.dart';
 import '../../provider/theme_provider.dart';
+import '../Colors/colors.dart';
 
 class IncidentReportingScreen extends StatefulWidget {
   const IncidentReportingScreen({super.key});
@@ -17,13 +20,12 @@ class IncidentReportingScreen extends StatefulWidget {
 class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
   final TextEditingController descriptionController = TextEditingController();
   XFile? selectedImage;
+  bool isSubmitting = false;
 
   Future<void> pickImage() async {
     final ImagePicker imagePicker = ImagePicker();
-
-    final XFile? pickedImageFile = await imagePicker.pickImage(
-      source: ImageSource.camera,
-    );
+    final XFile? pickedImageFile =
+        await imagePicker.pickImage(source: ImageSource.camera);
 
     if (pickedImageFile != null) {
       setState(() {
@@ -32,7 +34,43 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
     }
   }
 
-  void submitReport() {
+  String getCurrentUserId() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user != null ? user.uid : "Unknown User";
+  }
+
+  Future<Map<String, double>> getCurrentLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return {"lat": 0.0, "lng": 0.0};
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+
+      return {"lat": position.latitude, "lng": position.longitude};
+    } catch (e) {
+      print("Error getting location: $e");
+      return {"lat": 0.0, "lng": 0.0};
+    }
+  }
+
+  Future<String?> uploadImage(File imageFile) async {
+    try {
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference ref =
+          FirebaseStorage.instance.ref().child("incident_images/$fileName.jpg");
+      await ref.putFile(imageFile);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      print("Error uploading image: $e");
+      return null;
+    }
+  }
+
+  Future<void> submitReport() async {
     if (descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please enter a description.")),
@@ -40,14 +78,46 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Incident reported successfully.")),
-    );
+    setState(() => isSubmitting = true);
 
-    setState(() {
-      descriptionController.clear();
-      selectedImage = null;
-    });
+    try {
+      String userId = getCurrentUserId();
+     
+
+      String? imageUrl;
+      if (selectedImage != null) {
+        imageUrl = await uploadImage(File(selectedImage!.path));
+      }
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      DocumentReference incidentDoc =
+          FirebaseFirestore.instance.collection("incidentReports").doc();
+
+      await incidentDoc.set({
+        "docId": incidentDoc.id,
+        "description": descriptionController.text,
+        "incidentPic": imageUrl ?? "",
+        "userId": userId,
+        "timestamp": FieldValue.serverTimestamp(),
+        'location': GeoPoint(position.latitude, position.longitude),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Incident reported successfully.")),
+      );
+
+      setState(() {
+        descriptionController.clear();
+        selectedImage = null;
+      });
+    } catch (e) {
+      print("Error submitting report: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to report incident.")),
+      );
+    } finally {
+      setState(() => isSubmitting = false);
+    }
   }
 
   @override
@@ -55,9 +125,8 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : primaryColor,
       appBar: AppBar(
-        backgroundColor: themeProvider.isDarkMode ? Colors.black : primaryColor,
         title: const Text(
           'Incident Reporting',
           style: TextStyle(color: Colors.white),
@@ -77,9 +146,10 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
                     : Colors.grey[100],
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: themeProvider.isDarkMode
-                        ? Colors.grey[700]!
-                        : Colors.grey[300]!),
+                  color: themeProvider.isDarkMode
+                      ? Colors.grey[700]!
+                      : Colors.grey[300]!,
+                ),
               ),
               child: TextField(
                 controller: descriptionController,
@@ -87,9 +157,10 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
                 decoration: InputDecoration(
                   labelText: 'Describe the incident',
                   labelStyle: TextStyle(
-                      color: themeProvider.isDarkMode
-                          ? Colors.white54
-                          : Colors.black54),
+                    color: themeProvider.isDarkMode
+                        ? Colors.white54
+                        : Colors.black54,
+                  ),
                   border: InputBorder.none,
                 ),
               ),
@@ -106,10 +177,7 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                    ),
+                    Icon(Icons.camera_alt, color: Colors.white),
                     SizedBox(width: 10),
                     Text(
                       'Take a Photo',
@@ -133,22 +201,24 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
                 : const Text('No image selected.', textAlign: TextAlign.center),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap: submitReport,
+              onTap: isSubmitting ? null : submitReport,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 decoration: BoxDecoration(
-                  color: primaryColor,
+                  color: isSubmitting ? Colors.grey : primaryColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Center(
-                  child: Text(
-                    'Submit Report',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+                child: Center(
+                  child: isSubmitting
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Submit Report',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                 ),
               ),
             ),

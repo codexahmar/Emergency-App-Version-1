@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
-
 import '../../provider/theme_provider.dart';
 import '../../services/notification_service.dart';
 
@@ -169,10 +168,19 @@ class _ContactsScreenState extends State<ContactsScreen> {
       final userDoc = await _firestore.collection('users').doc(userId).get();
       final userName = userDoc.data()?['name'] ?? 'Emergency Contact';
 
-
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
 
+      // Create incident report
+      DocumentReference incidentRef =
+          await _firestore.collection('incidentReports').add({
+        'emergencyType': widget.emergencyType,
+        'timestamp': FieldValue.serverTimestamp(),
+        'userId': userId,
+        'location': GeoPoint(position.latitude, position.longitude),
+      });
+      print("This is complete doc of incident report: $incidentRef");
+      // Send notification with incident reference
       await NotificationService.sendEmergencyNotificationToUser(
         recipientDocId: docId,
         senderName: userName,
@@ -182,11 +190,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Emergency alert sent successfully')),
+        const SnackBar(content: Text('Emergency alert sent successfully')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send emergency alert')),
+        const SnackBar(content: Text('Failed to send emergency alert')),
       );
       print('Error sending emergency notification: $e');
     }

@@ -52,6 +52,7 @@ class SignupScreenState extends State<SignupScreen> {
           'email': emailController.text.trim(),
           'phone': phoneController.text.trim(),
           'docId': userId,
+          "role": "user",
           'createdAt': FieldValue.serverTimestamp(),
         });
 

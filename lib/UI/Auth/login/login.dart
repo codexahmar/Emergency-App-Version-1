@@ -3,11 +3,15 @@ import 'package:emergency_app/UI/Auth/signUp/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../provider/theme_provider.dart';
 import '../../../services/firebase_api.dart';
 import '../../Colors/colors.dart';
 import '../../screens/home_screen.dart';
 import '../../widgets/custom_textfield.dart';
+import '../../screens/admin_screen.dart';
+import '../../screens/rescue_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter both email and password!')),
+        const SnackBar(content: Text('Please enter both email and password!')),
       );
       return;
     }
@@ -43,12 +47,44 @@ class _LoginScreenState extends State<LoginScreen> {
         password: passwordController.text,
       );
       String userId = userCredential.user!.uid;
-      await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'fcmToken': fcmToken,
-      });
 
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      // Create or update user document in Firestore
+      DocumentReference userRef =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+      DocumentSnapshot userData = await userRef.get();
+
+      if (userData.exists) {
+        String? userRole = userData.get('role') as String?;
+
+        // Save user role to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userRole', userRole ?? 'user');
+
+        // Update FCM token for existing user
+        await userRef.update({
+          'fcmToken': fcmToken,
+        });
+
+        if (userRole == 'admin') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => AdminScreen()));
+        } else if (userRole == 'rescue') {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => RescueScreen()));
+        } else if (userRole == "user") {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        }
+      } else {
+        await userRef.set({
+          'email': emailController.text,
+          'fcmToken': fcmToken,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(

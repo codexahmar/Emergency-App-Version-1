@@ -131,6 +131,7 @@ class NotificationService {
     required String emergencyType,
     required double latitude,
     required double longitude,
+
   }) async {
     try {
       final serverKey = getServerKey();
@@ -232,6 +233,7 @@ class NotificationService {
         emergencyType: emergencyType,
         latitude: latitude,
         longitude: longitude,
+
       );
     } catch (e, stackTrace) {
       print('Error in sendEmergencyNotificationToUser: $e');
