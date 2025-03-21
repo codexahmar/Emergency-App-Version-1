@@ -34,6 +34,10 @@ class NotificationService {
     const initSettings =
         InitializationSettings(android: androidSettings, iOS: iosSettings);
 
+    // Get initial message first
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
@@ -41,17 +45,35 @@ class NotificationService {
       },
     );
 
+    // Handle background state
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       handleNotificationTap(message.data);
     });
 
-
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
+    // Handle terminated state differently
     if (initialMessage != null) {
-      handleNotificationTap(initialMessage.data);
-    }
+      // Ensure app is fully initialized before navigation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (initialMessage.data['type'] == 'emergency') {
+          double? latitude =
+              double.tryParse(initialMessage.data['latitude'] ?? '');
+          double? longitude =
+              double.tryParse(initialMessage.data['longitude'] ?? '');
 
+          if (latitude != null && longitude != null) {
+            // Use pushReplacement for terminated state to replace the initial route
+            navigatorKey.currentState?.pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => LocationScreen(
+                  initialLatitude: latitude,
+                  initialLongitude: longitude,
+                ),
+              ),
+            );
+          }
+        }
+      });
+    }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
@@ -131,7 +153,6 @@ class NotificationService {
     required String emergencyType,
     required double latitude,
     required double longitude,
-
   }) async {
     try {
       final serverKey = getServerKey();
@@ -233,7 +254,6 @@ class NotificationService {
         emergencyType: emergencyType,
         latitude: latitude,
         longitude: longitude,
-
       );
     } catch (e, stackTrace) {
       print('Error in sendEmergencyNotificationToUser: $e');
@@ -246,8 +266,6 @@ class NotificationService {
     String? token = await _firebaseMessaging.getToken();
     return token ?? "";
   }
-
-
 
   static Future<void> debugNotificationFlow({
     required String recipientDocId,
@@ -269,7 +287,6 @@ class NotificationService {
           print(' FCM Token: ${recipientData['fcmToken']}');
         }
       }
-
 
       final result = await sendEmergencyNotificationToUser(
         recipientDocId: recipientDocId,

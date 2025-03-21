@@ -212,17 +212,17 @@ class QuickSosAlertState extends State<QuickSosAlert> {
                     });
                   },
                 ),
-                EmergencyContainer(
-                  icon: "assets/icons/violence.png",
-                  color: Color(0xFFF5A6DF),
-                  label: "Violence",
-                  isSelected: selectedEmergency == "Violence",
-                  onTap: () {
-                    setState(() {
-                      selectedEmergency = "Violence";
-                    });
-                  },
-                ),
+                // EmergencyContainer(
+                //   icon: "assets/icons/violence.png",
+                //   color: Color(0xFFF5A6DF),
+                //   label: "Violence",
+                //   isSelected: selectedEmergency == "Violence",
+                //   onTap: () {
+                //     setState(() {
+                //       selectedEmergency = "Violence";
+                //     });
+                //   },
+                // ),
                 EmergencyContainer(
                   icon: "assets/icons/rescue.png",
                   color: Color(0xFFF5E8A6),

@@ -82,7 +82,6 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
 
     try {
       String userId = getCurrentUserId();
-     
 
       String? imageUrl;
       if (selectedImage != null) {
@@ -100,6 +99,7 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
         "userId": userId,
         "timestamp": FieldValue.serverTimestamp(),
         'location': GeoPoint(position.latitude, position.longitude),
+        "status": "active"
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -125,14 +125,18 @@ class _IncidentReportingScreenState extends State<IncidentReportingScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: themeProvider.isDarkMode ? Colors.black : primaryColor,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Incident Reporting',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+          ),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(
+          color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

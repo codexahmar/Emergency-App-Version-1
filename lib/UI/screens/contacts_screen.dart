@@ -178,6 +178,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         'timestamp': FieldValue.serverTimestamp(),
         'userId': userId,
         'location': GeoPoint(position.latitude, position.longitude),
+        "status": "active"
       });
       print("This is complete doc of incident report: $incidentRef");
       // Send notification with incident reference

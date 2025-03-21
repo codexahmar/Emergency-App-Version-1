@@ -86,152 +86,162 @@ class SignupScreenState extends State<SignupScreen> {
 
     return Scaffold(
       backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Center(
-                child: Text(
-                  "Sign Up",
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Name",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              CustomTextField(
-                controller: nameController,
-                hintText: "Enter your name",
-                prefixIcon: Icons.person,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Phone Number",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              CustomTextField(
-                controller: phoneController,
-                hintText: 'Enter your phone number',
-                prefixIcon: Icons.phone,
-                isPassword: false,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                onChanged: (value) {
-                  if (value.isNotEmpty && !RegExp(r'^\d+$').hasMatch(value)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Only numeric input is allowed')),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Email",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              CustomTextField(
-                controller: emailController,
-                hintText: "Enter your email",
-                prefixIcon: Icons.email,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Password",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              CustomTextField(
-                controller: passwordController,
-                hintText: "Enter your password",
-                prefixIcon: Icons.lock,
-                isPassword: true,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Confirm Password",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              CustomTextField(
-                controller: confirmPasswordController,
-                hintText: "Confirm your password",
-                prefixIcon: Icons.lock,
-                isPassword: true,
-              ),
-              SizedBox(
-                height: 45,
-              ),
-              Center(
-                child: InkWell(
-                  onTap: isLoading ? null : signUp,
-                  child: Container(
-                    width: 288,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: themeProvider.isDarkMode
-                          ? Colors.grey[800]
-                          : primaryColor,
-                    ),
-                    child: Center(
-                      child: isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white),
-                            ),
-                    ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
+                const Center(
+                  child: Text(
+                    "Sign Up",
+                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                const SizedBox(height: 10),
+                const Text(
+                  "Name",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  controller: nameController,
+                  hintText: "Enter your name",
+                  prefixIcon: Icons.person,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Phone Number",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  controller: phoneController,
+                  hintText: 'Enter your phone number',
+                  prefixIcon: Icons.phone,
+                  isPassword: false,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  onChanged: (value) {
+                    if (value.isNotEmpty && !RegExp(r'^\d+$').hasMatch(value)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Only numeric input is allowed')),
+                      );
+                    }
                   },
-                  child: RichText(
-                    text: TextSpan(
-                      text: "Already have an account? ",
-                      style: TextStyle(
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Email",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  controller: emailController,
+                  hintText: "Enter your email",
+                  prefixIcon: Icons.email,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Password",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  controller: passwordController,
+                  hintText: "Enter your password",
+                  prefixIcon: Icons.lock,
+                  isPassword: true,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Confirm Password",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 8),
+                CustomTextField(
+                  controller: confirmPasswordController,
+                  hintText: "Confirm your password",
+                  prefixIcon: Icons.lock,
+                  isPassword: true,
+                ),
+                SizedBox(
+                  height: 45,
+                ),
+                Center(
+                  child: InkWell(
+                    onTap: isLoading ? null : signUp,
+                    child: Container(
+                      width: 288,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
                         color: themeProvider.isDarkMode
-                            ? Colors.white
-                            : Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
+                            ? Colors.grey[800]
+                            : primaryColor,
                       ),
-                      children: [
-                        TextSpan(
-                          text: "Sign In",
-                          style: TextStyle(
-                            color: primaryColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                      child: Center(
+                        child: isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white),
+                              ),
+                      ),
                     ),
                   ),
                 ),
-              )
-            ],
+                SizedBox(
+                  height: 30,
+                ),
+                Center(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()));
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Already have an account? ",
+                        style: TextStyle(
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: "Sign In",
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

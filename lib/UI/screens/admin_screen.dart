@@ -29,14 +29,46 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Admin Dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black),
-            onPressed: () => logout(context),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25)),
+              gradient: LinearGradient(
+                colors: [Colors.deepPurple, Colors.blueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
           ),
-        ],
+          title: const Text(
+            "Admin Dashboard",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              letterSpacing: 1.2,
+            ),
+          ),
+          centerTitle: true,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white, size: 28),
+              onPressed: () => logout(context),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -45,29 +77,46 @@ class _AdminScreenState extends State<AdminScreen> {
           children: [
             const Text(
               "Select Category",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                children: [
+              child: GridView(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.1,
+                ),
+                children: const [
                   CategoryTile(
                       title: "Medical",
-                      color: Colors.red,
-                      icon: Icons.medical_services),
+                      color: Colors.redAccent,
+                      icon: Icons.health_and_safety),
                   CategoryTile(
                       title: "Violence",
-                      color: Colors.blue,
-                      icon: Icons.security),
+                      color: Colors.blueAccent,
+                      icon: Icons.shield_outlined),
                   CategoryTile(
                       title: "Rescue",
-                      color: Colors.green,
-                      icon: Icons.fire_truck),
+                      color: Colors.teal,
+                      icon: Icons.support_agent),
                   CategoryTile(
-                      title: "Other", color: Colors.orange, icon: Icons.report),
+                      title: "Fire",
+                      color: Colors.orange,
+                      icon: Icons.local_fire_department),
+                  CategoryTile(
+                      title: "Natural Disaster",
+                      color: Colors.purple,
+                      icon: Icons.tsunami),
+                  CategoryTile(
+                      title: "Accident",
+                      color: Colors.deepOrange,
+                      icon: Icons.directions_car),
+                  CategoryTile(
+                      title: "Other",
+                      color: Colors.brown,
+                      icon: Icons.report_gmailerrorred),
                 ],
               ),
             ),

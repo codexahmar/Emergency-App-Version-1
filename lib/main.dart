@@ -1,3 +1,5 @@
+import 'package:emergency_app/UI/screens/admin_screen.dart';
+import 'package:emergency_app/UI/screens/rescue_screen.dart';
 import 'package:emergency_app/UI/screens/splash_screen.dart';
 import 'package:emergency_app/services/firebase_api.dart';
 

@@ -1,0 +1,2 @@
+/Users/ahmaryarkhan/Desktop/Emergency App/emergency_app/android/app/.cxx/RelWithDebInfo/2m396x3i/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/ahmaryarkhan/Desktop/Emergency App/emergency_app/android/app/.cxx/RelWithDebInfo/2m396x3i/arm64-v8a/CMakeFiles/rebuild_cache.dir

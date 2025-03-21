@@ -1,0 +1,2 @@
+/Users/ahmaryarkhan/Desktop/Emergency App/emergency_app/android/app/.cxx/Debug/18493gqp/x86_64/CMakeFiles/edit_cache.dir
+/Users/ahmaryarkhan/Desktop/Emergency App/emergency_app/android/app/.cxx/Debug/18493gqp/x86_64/CMakeFiles/rebuild_cache.dir
