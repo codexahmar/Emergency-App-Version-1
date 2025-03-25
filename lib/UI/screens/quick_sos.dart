@@ -107,7 +107,7 @@ class QuickSosAlertState extends State<QuickSosAlert> {
                 Consumer<LocationProvider>(
                   builder: (context, locationProvider, child) {
                     return Text(
-                      locationProvider.currentLocation,
+                      locationProvider.currentAddress,
                       style: TextStyle(
                         fontSize: 12,
                         color: subtitleColor,

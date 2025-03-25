@@ -1,101 +1,149 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 
 class LocationProvider extends ChangeNotifier {
-  String currentLocation = 'Fetching location...';
-  bool isLoading = true;
-  StreamSubscription<Position>? positionStreamSubscription;
+  Position? position;
+  LatLng? myLocationMarker;
+  List<LatLng> routeCoords = [];
+  Set<Polyline> polyLines = {};
+  Set<Marker> markers = {};
+  MapType mapType = MapType.hybrid;
+  bool userInteractedWithMap = false;
+  GoogleMapController? mapController;
+  String currentAddress = "Fetching...";
 
   LocationProvider() {
-    initLocationService();
+    getCurrentLocation();
+    listenCurrentLocation();
   }
 
-  Future<void> initLocationService() async {
-    isLoading = true;
-    notifyListeners();
+  Future<void> getCurrentLocation() async {
+    if (await _checkPermission()) {
+      if (await _checkGpsServiceEnable()) {
+        position = await Geolocator.getCurrentPosition();
+        updateLocation(position!);
 
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      currentLocation = 'Location services are disabled';
-      isLoading = false;
-      notifyListeners();
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        currentLocation = 'Location permissions are denied';
-        isLoading = false;
-        notifyListeners();
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      currentLocation = 'Location permissions are permanently denied';
-      isLoading = false;
-      notifyListeners();
-      return;
-    }
-
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy:
-          LocationAccuracy.bestForNavigation, 
-    );
-    updateLocation(position);
-
-  
-    positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 1, 
-      ),
-    ).listen((Position position) {
-      updateLocation(position);
-    });
-  }
-
-  Future<void> updateLocation(Position position) async {
-    try {
-      print(
-          "Current Latitude: ${position.latitude}, Longitude: ${position.longitude}");
-
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
-
-        currentLocation =
-            " ${place.locality}, ${place.administrativeArea}, ${place.country}";
-        print(currentLocation);
+        if (mapController != null) {
+          mapController!.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(position!.latitude, position!.longitude),
+                zoom: 20,
+              ),
+            ),
+          );
+        }
       } else {
-        currentLocation = 'Location not found';
+        _requestGpsServiceEnable();
       }
-    } catch (e) {
-      currentLocation = 'Location not available';
-      print("Error fetching location: $e");
-    } finally {
-      isLoading = false;
-      notifyListeners();
+    } else {
+      _requestPermission();
     }
   }
 
-  void refreshLocation() {
-    initLocationService();
+  Future<void> listenCurrentLocation() async {
+    if (await _checkPermission()) {
+      if (await _checkGpsServiceEnable()) {
+        Geolocator.getPositionStream(
+          locationSettings:
+              const LocationSettings(accuracy: LocationAccuracy.high),
+        ).listen((Position newPos) {
+          position = newPos;
+          updateLocation(newPos);
+        });
+      } else {
+        _requestGpsServiceEnable();
+      }
+    } else {
+      _requestPermission();
+    }
   }
 
-  @override
-  void dispose() {
-    positionStreamSubscription?.cancel();
-    super.dispose();
+  void updateLocation(Position newPosition) async {
+    LatLng newLatLng = LatLng(newPosition.latitude, newPosition.longitude);
+    myLocationMarker = newLatLng;
+    routeCoords.add(newLatLng);
+
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+        newPosition.latitude, newPosition.longitude);
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks[0];
+      currentAddress =
+          "${place.locality}, ${place.administrativeArea}, ${place.country}";
+    } else {
+      currentAddress = "Unknown location";
+    }
+
+    _updatePolyline();
+    _updateMarker();
+    notifyListeners();
+  }
+
+  void _updatePolyline() {
+    polyLines = {
+      Polyline(
+        polylineId: const PolylineId("route"),
+        points: routeCoords,
+        color: Colors.blue,
+        width: 5,
+      )
+    };
+    notifyListeners();
+  }
+
+  void _updateMarker() {
+    markers = {
+      Marker(
+        markerId: const MarkerId("currentLocation"),
+        position: myLocationMarker!,
+        infoWindow: InfoWindow(
+          title: "My Current Location",
+          snippet:
+              "${myLocationMarker!.latitude}, ${myLocationMarker!.longitude}",
+        ),
+        onTap: () {
+          userInteractedWithMap = false;
+          moveToCurrentLocation();
+        },
+      )
+    };
+    notifyListeners();
+  }
+
+  void moveToCurrentLocation() {
+    if (mapController != null && !userInteractedWithMap) {
+      mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: myLocationMarker!, zoom: 20),
+        ),
+      );
+    }
+  }
+
+  void toggleMapType() {
+    mapType = (mapType == MapType.hybrid) ? MapType.normal : MapType.hybrid;
+    notifyListeners();
+  }
+
+  Future<bool> _checkPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+  }
+
+  Future<bool> _requestPermission() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+  }
+
+  Future<bool> _checkGpsServiceEnable() async {
+    return await Geolocator.isLocationServiceEnabled();
+  }
+
+  Future<void> _requestGpsServiceEnable() async {
+    await Geolocator.openLocationSettings();
   }
 }
