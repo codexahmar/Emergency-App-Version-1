@@ -146,4 +146,31 @@ class LocationProvider extends ChangeNotifier {
   Future<void> _requestGpsServiceEnable() async {
     await Geolocator.openLocationSettings();
   }
+
+  void showSenderLocation(LatLng senderLocation) {
+    markers = {
+      ...markers,
+      Marker(
+        markerId: const MarkerId("senderLocation"),
+        position: senderLocation,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        infoWindow: const InfoWindow(
+          title: "Emergency Location",
+          snippet: "Location where emergency was reported",
+        ),
+      ),
+    };
+
+    if (mapController != null) {
+      mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: senderLocation,
+            zoom: 20,
+          ),
+        ),
+      );
+    }
+    notifyListeners();
+  }
 }

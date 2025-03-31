@@ -18,6 +18,11 @@ class LocationScreen extends StatefulWidget {
 class _LocationScreenState extends State<LocationScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: LiveLocationMapScreen());
+    return Scaffold(
+      body: LiveLocationMapScreen(
+        initialLatitude: widget.initialLatitude,
+        initialLongitude: widget.initialLongitude,
+      ),
+    );
   }
 }

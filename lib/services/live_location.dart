@@ -4,6 +4,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 class LiveLocationMapScreen extends StatelessWidget {
+  final double? initialLatitude;
+  final double? initialLongitude;
+
+  const LiveLocationMapScreen({
+    Key? key,
+    this.initialLatitude,
+    this.initialLongitude,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +54,15 @@ class LiveLocationMapScreen extends StatelessWidget {
       ),
       body: Consumer<LocationProvider>(
         builder: (context, provider, child) {
+          // If we have initial coordinates, use them
+          if (initialLatitude != null && initialLongitude != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              provider.showSenderLocation(
+                LatLng(initialLatitude!, initialLongitude!),
+              );
+            });
+          }
+
           if (provider.myLocationMarker == null) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -55,12 +73,16 @@ class LiveLocationMapScreen extends StatelessWidget {
             children: [
               GoogleMap(
                 initialCameraPosition: CameraPosition(
-                  target: provider.myLocationMarker!,
+                  target: initialLatitude != null && initialLongitude != null
+                      ? LatLng(initialLatitude!, initialLongitude!)
+                      : provider.myLocationMarker!,
                   zoom: 20,
                 ),
                 onMapCreated: (GoogleMapController mapCtrl) {
                   provider.mapController = mapCtrl;
-                  provider.moveToCurrentLocation();
+                  if (initialLatitude == null || initialLongitude == null) {
+                    provider.moveToCurrentLocation();
+                  }
                 },
                 onTap: (LatLng position) {
                   provider.userInteractedWithMap = true;

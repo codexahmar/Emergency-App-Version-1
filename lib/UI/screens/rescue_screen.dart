@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../Auth/signUp/signup.dart';
+import 'location_screen.dart';
 
 class RescueScreen extends StatefulWidget {
   const RescueScreen({super.key});
@@ -34,22 +34,17 @@ class _RescueScreenState extends State<RescueScreen>
     return DateFormat('dd MMM yyyy, hh:mm a').format(date);
   }
 
-  // Function to open location in Google Maps
-  void openLocation(GeoPoint location) async {
-    String googleMapsAppUrl =
-        "geo:${location.latitude},${location.longitude}?q=${location.latitude},${location.longitude}";
-    String googleMapsWebUrl =
-        "https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}";
-
-    if (await canLaunchUrl(Uri.parse(googleMapsAppUrl))) {
-      await launchUrl(Uri.parse(googleMapsAppUrl));
-    } else if (await canLaunchUrl(Uri.parse(googleMapsWebUrl))) {
-      await launchUrl(Uri.parse(googleMapsWebUrl));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Could not open Google Maps.")),
-      );
-    }
+  // Function to open location in app
+  void openLocation(GeoPoint location) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationScreen(
+          initialLatitude: location.latitude,
+          initialLongitude: location.longitude,
+        ),
+      ),
+    );
   }
 
   // Function to fetch user name from Firestore
