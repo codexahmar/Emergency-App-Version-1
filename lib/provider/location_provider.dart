@@ -13,10 +13,69 @@ class LocationProvider extends ChangeNotifier {
   bool userInteractedWithMap = false;
   GoogleMapController? mapController;
   String currentAddress = "Fetching...";
+  bool isInitializing = true; // Add loading state
 
   LocationProvider() {
-    getCurrentLocation();
-    listenCurrentLocation();
+    _initializeLocation();
+  }
+
+  Future<void> _initializeLocation() async {
+    try {
+      isInitializing = true;
+      notifyListeners();
+
+      // First check and request permissions
+      if (!await _checkPermission()) {
+        final hasPermission = await _requestPermission();
+        if (!hasPermission) {
+          isInitializing = false;
+          notifyListeners();
+          return;
+        }
+      }
+
+      // Then check GPS
+      if (!await _checkGpsServiceEnable()) {
+        await _requestGpsServiceEnable();
+        if (!await _checkGpsServiceEnable()) {
+          isInitializing = false;
+          notifyListeners();
+          return;
+        }
+      }
+
+      // Get last known position first for faster initial display
+      Position? lastKnownPosition = await Geolocator.getLastKnownPosition();
+      if (lastKnownPosition != null) {
+        position = lastKnownPosition;
+        updateLocation(lastKnownPosition);
+      }
+
+      // Then get current position with timeout
+      try {
+        position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 5),
+        );
+        if (position != null) {
+          updateLocation(position!);
+        }
+      } catch (e) {
+        print("Error getting current position: $e");
+        // If current position fails but we have last known position, we can still proceed
+        if (position == null) {
+          isInitializing = false;
+          notifyListeners();
+          return;
+        }
+      }
+
+      // Start location updates stream
+      listenCurrentLocation();
+    } finally {
+      isInitializing = false;
+      notifyListeners();
+    }
   }
 
   Future<void> getCurrentLocation() async {
@@ -64,16 +123,25 @@ class LocationProvider extends ChangeNotifier {
   void updateLocation(Position newPosition) async {
     LatLng newLatLng = LatLng(newPosition.latitude, newPosition.longitude);
     myLocationMarker = newLatLng;
-    routeCoords.add(newLatLng);
 
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-        newPosition.latitude, newPosition.longitude);
-    if (placemarks.isNotEmpty) {
-      Placemark place = placemarks[0];
-      currentAddress =
-          "${place.locality}, ${place.administrativeArea}, ${place.country}";
-    } else {
-      currentAddress = "Unknown location";
+    // Only add to route coords if it's not the first position
+    if (routeCoords.isEmpty || routeCoords.last != newLatLng) {
+      routeCoords.add(newLatLng);
+    }
+
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+          newPosition.latitude, newPosition.longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        currentAddress =
+            "${place.locality}, ${place.administrativeArea}, ${place.country}";
+      } else {
+        currentAddress = "Unknown location";
+      }
+    } catch (e) {
+      print("Error getting address: $e");
+      currentAddress = "Location found, address unavailable";
     }
 
     _updatePolyline();

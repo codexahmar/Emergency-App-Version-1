@@ -27,6 +27,7 @@ class LiveLocationMapScreen extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Consumer<LocationProvider>(
         builder: (context, provider, child) {
+          if (provider.isInitializing) return const SizedBox.shrink();
           return Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
@@ -63,9 +64,19 @@ class LiveLocationMapScreen extends StatelessWidget {
             });
           }
 
-          if (provider.myLocationMarker == null) {
+          if (provider.isInitializing || provider.myLocationMarker == null) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    'Fetching your location...',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             );
           }
 
