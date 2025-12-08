@@ -1,16 +1,40 @@
-# emergency_app
+# 🚨 SafeTap — Emergency Safety App (Basic UI)
 
-A new Flutter project.
+**SafeTap (Basic UI)** is a simple version of the emergency safety app that lets users send **alerts with their real-time location** to trusted contacts in case of an emergency.  
+This version focuses on **core functionality with a minimal interface**, perfect for learning and testing emergency flows.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🛡️ Core Features
 
-A few resources to get you started if this is your first Flutter project:
+- 📍 **Share real-time location** with emergency contacts
+- 🆘 **One-tap SOS button**
+- 🔔 **Push notifications** for alerts (via Firebase FCM)
+- 📝 **Send simple incident reports** with description
+- 📱 **Basic clean UI** for quick access in emergencies
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| **Flutter (Dart)** | App UI & logic |
+| **Firebase Auth** | User authentication |
+| **Firebase Firestore** | Store emergency data |
+| **Firebase FCM** | Push notifications |
+| **Google Maps API** | Real-time location tracking |
+
+---
+
+## 🚧 Project Status
+
+📌 **Basic UI + functionality implemented**  
+Future improvements:
+- More polished UI / animations
+- SOS confirmation flow
+- Multi-contact support
+- Admin dashboard integration
+
+
+🆘 *Quick, simple, and ready to send help when it matters most.* ⚡
